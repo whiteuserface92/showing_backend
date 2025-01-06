@@ -10,6 +10,7 @@ import * as path from 'path';
 import { KakaoController } from './kakao/kakao.controller';
 import { KakaoService } from './kakao/kakao.service';
 import { DatabaseService } from './database/database.service';
+import { HashService } from './hash/hash.service';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { DatabaseService } from './database/database.service';
     }),
   ],
   controllers: [AppController, UserController, KakaoController],
-  providers: [AppService, UserService, KakaoService, DatabaseService],
+  providers: [AppService, UserService, KakaoService, DatabaseService, HashService],
 })
 export class AppModule {}
