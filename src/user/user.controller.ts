@@ -1,6 +1,6 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Res } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './entity/user.entity';
+import { Response } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -12,19 +12,20 @@ export class UserController {
   }
 
   @Post('create')
-  @HttpCode(201)
-  async createUser(@Body() User) {
-    const result = await this.userService.createUser(User);
+  async createUser(@Body() user, @Res() res: Response) {
+    const result = await this.userService.createUser(user);
     if (result) {
-      return { message: 'Created successful', result };
+      return res.status(201).json({ message: 'Created successful', result });
     } else {
-      return { message: 'Created failed Because this username Exist.' };
+      return res
+        .status(400)
+        .json({ message: 'Created failed Because this username Exist.' });
     }
   }
 
   @Post('validateUser')
   @HttpCode(200)
-  async validateUser(@Body() user) {
+  async validateUser(@Body() user, @Res() res: Response) {
     const validatedUser = await this.userService.validateUser(
       user.username,
       user.password,
@@ -33,9 +34,9 @@ export class UserController {
     console.log(`controller value : ${validatedUser}`);
 
     if (validatedUser) {
-      return { message: 'Login successful', user };
+      return res.status(200).json({ message: 'Login successful', user });
     } else {
-      return { message: 'Invalid credentials' };
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
   }
 }
