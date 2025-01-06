@@ -13,4 +13,9 @@ export class UserService {
   async getUsers(): Promise<User[]> {
     return this.userRepository.find();
   }
+
+  async createUser(User: User[]): Promise<User[]> {
+    const newUser = await this.userRepository.create(User);
+    return await this.userRepository.save(User); // 새로운 엔티티 생성
+  }
 }

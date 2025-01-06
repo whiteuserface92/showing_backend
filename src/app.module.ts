@@ -16,11 +16,11 @@ import { DatabaseService } from './database/database.service';
     TypeOrmModule.forRoot({
       // TODO 해당 변수 .env 설정으로 변경예정
       type: 'mariadb',
-      host: 'localhost', // MariaDB 서버 주소
-      port: 3306, // MariaDB 포트
-      username: 'root', // MariaDB 사용자 이름
-      password: 'root', // MariaDB 비밀번호
-      database: 'test', // 사용하려는 데이터베이스 이름
+      host: process.env.DATABASE_HOST, // MariaDB 서버 주소
+      port: parseInt(process.env.DATABASE_PORT), // MariaDB 포트
+      username: process.env.DATABASE_USERNAME, // MariaDB 사용자 이름
+      password: process.env.DATABASE_PASSWORD, // MariaDB 비밀번호
+      database: process.env.DATABASE_NAME, // 사용하려는 데이터베이스 이름
       entities: [User], // 사용되는 엔티티
       synchronize: true, // 애플리케이션 시작 시 데이터베이스 스키마 자동 동기화 (개발 환경에서만 사용 권장)
     }),
