@@ -1,3 +1,14 @@
+# 보안관련 설명(SESSION으로 로그인 관리할 예정)
+
+# API 세팅 후 역할에 대한 설명
+
+kakao 서비스
+(KakaoServie.ts)
+
+- 로그인 시 카카오 인증번호를 통한 로그인 예정으로 관련 인증서비스 구현예정
+
+# NESTJS 초기 INSTALL 후 작업을 정리해놓을 예정
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
