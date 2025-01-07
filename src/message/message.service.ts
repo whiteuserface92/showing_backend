@@ -13,4 +13,8 @@ export class MessageService {
   async getMessages(): Promise<Message[]> {
     return this.messageRepository.find();
   }
+
+  async getMessageById(id: number): Promise<Message> {
+    return this.messageRepository.findOneBy({ id });
+  }
 }

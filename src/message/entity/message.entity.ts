@@ -13,4 +13,10 @@ export class Message {
 
   @Column()
   date: string;
+
+  @Column()
+  data: string;
+
+  @Column()
+  toName: string;
 }
