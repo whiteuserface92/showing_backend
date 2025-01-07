@@ -15,13 +15,21 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, password: string): Promise<User | null> {
-    // console.log(password);
+    if (!username) {
+      throw new CustomUnauthorizedException(
+        '아이디가 제대로 입력되지 않았습니다.',
+      );
+    }
+
+    if (!password) {
+      throw new CustomUnauthorizedException(
+        '비밀번호가 제대로 입력되지 않았습니다.',
+      );
+    }
 
     const user = await this.userRepository.findOneBy({ username });
-    console.log(`before password : ${user.password}`);
 
     const passwordEncodeData = await this.hashService.hashData(password);
-    console.log(`now encode password : ${passwordEncodeData}`);
 
     if (user) {
       if (passwordEncodeData == user.password) {
@@ -35,6 +43,8 @@ export class AuthService {
         // 비밀번호가 틀리면 null 반환
         return null;
       }
+    } else {
+      throw new CustomUnauthorizedException('해당 아이디가 존재하지 않습니다.');
     }
   }
 }

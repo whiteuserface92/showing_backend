@@ -16,11 +16,13 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Request() req, @Res() res: Response) {
-    const user = req.user;
-    //Return 객체 password 삭제
-    delete user.password;
-
-    return res.status(200).json({ message: 'Logged in successfully', user });
+    const userId = req.user.id;
+    const resultObj = {
+      id: userId,
+    };
+    return res
+      .status(200)
+      .json({ message: 'Logged in successfully', resultObj });
   }
 
   @Post('logout')
