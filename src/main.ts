@@ -8,6 +8,13 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://192.168.30.173:5000', // Allow requests from this domain
+    methods: 'GET,POST', // Allow only GET and POST methods
+    allowedHeaders: 'Content-Type, Authorization', // Allow certain headers
+    credentials: true, // Allow sending credentials (cookies)
+  });
+
   app.use(
     session({
       secret: 'dlsdlworld-secret-key',
