@@ -3,7 +3,8 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class HashService {
-  hashData(data: string): string {
-    return crypto.createHash('sha256').update(data).digest('hex');
+  async hashData(data: string): Promise<string> {
+    const result = crypto.createHash('sha256').update(data).digest('hex');
+    return result;
   }
 }

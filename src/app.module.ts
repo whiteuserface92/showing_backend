@@ -14,6 +14,8 @@ import { HashService } from './hash/hash.service';
 import { MessageController } from './message/message.controller';
 import { MessageService } from './message/message.service';
 import { Message } from './message/entity/message.entity';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { Message } from './message/entity/message.entity';
       isGlobal: true, //설정파일을 앱 전역에서 사용할 수 있도록 설정
       envFilePath: path.resolve(__dirname, '.env'), //env 파일 결로 설정
     }),
+    AuthModule,
+    UserModule,
   ],
   controllers: [
     AppController,
