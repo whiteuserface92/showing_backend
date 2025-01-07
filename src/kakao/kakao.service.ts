@@ -28,7 +28,7 @@ export class KakaoService {
         object_type: 'text',
         text: `인증번호는 ${verificationCode} 입니다.`,
         link: {
-          web_url: 'https://example.com',
+          web_url: 'http://localhost:5173',
         },
         button_title: '인증 완료',
       },
