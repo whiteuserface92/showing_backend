@@ -26,11 +26,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new CustomUnauthorizedException('해당 유저를 찾을 수 없습니다.');
     }
 
-    if (user) {
-      if ((await user).enabled == 0) {
-        throw new CustomUnauthorizedException('삭제된 계정입니다.');
-      }
-    }
     console.log('localStorage.strategy end');
     return user;
   }

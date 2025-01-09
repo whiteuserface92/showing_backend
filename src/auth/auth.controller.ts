@@ -21,17 +21,6 @@ export class AuthController {
     console.log(req.body);
 
     this.authService.validateUser(req.body.username, req.body.password, res);
-
-    // console.log('validateUser result : ' + result);
-
-    // const username = req.body.username;
-    // const resultObj = {
-    //   username: username,
-    // };
-    // this.authService.setLoginSession(req);
-    // return res
-    //   .status(200)
-    //   .json({ message: 'Logged in successfully', resultObj });
   }
 
   @Post('logout')

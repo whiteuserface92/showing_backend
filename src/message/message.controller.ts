@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 @Controller('message')
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
+  @UseGuards(AuthGuard('local'))
   @Post('getMessages')
   @HttpCode(200)
   async getUsers() {
