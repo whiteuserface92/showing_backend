@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Session } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -16,6 +16,8 @@ import { MessageService } from './message/message.service';
 import { Message } from './message/entity/message.entity';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { AuthGuard } from './auth/auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -51,6 +53,10 @@ import { UserModule } from './user/user.module';
     DatabaseService,
     HashService,
     MessageService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard, //APP_GUARD 전역으로 설정
+    },
   ],
 })
 export class AppModule {}

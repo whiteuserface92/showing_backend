@@ -1,8 +1,11 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Request, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { CustomUnauthorizedException } from '../exception/CustomUnauthorizedException.exception';
+import { User } from 'src/user/entity/user.entity';
+import { Response } from 'express';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -10,17 +13,25 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
-  async validate(username: string, password: string): Promise<any> {
-    const user = await this.authService.validateUser(username, password);
+  async validate(
+    username: string,
+    password: string,
+    res: Response,
+  ): Promise<User> {
+    console.log('local.strategy start');
+
+    const user = this.authService.getUserByUserName(username);
+
     if (!user) {
       throw new CustomUnauthorizedException('해당 유저를 찾을 수 없습니다.');
     }
 
     if (user) {
-      if (user.enabled == 0) {
+      if ((await user).enabled == 0) {
         throw new CustomUnauthorizedException('삭제된 계정입니다.');
       }
     }
+    console.log('localStorage.strategy end');
     return user;
   }
 }

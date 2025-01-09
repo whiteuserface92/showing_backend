@@ -1,5 +1,6 @@
-import { Controller, HttpCode, Post, Request } from '@nestjs/common';
+import { Controller, HttpCode, Post, Request, UseGuards } from '@nestjs/common';
 import { MessageService } from './message.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('message')
 export class MessageController {
@@ -10,6 +11,7 @@ export class MessageController {
     return this.messageService.getMessages();
   }
 
+  @UseGuards(AuthGuard('local'))
   @Post('getMessageById')
   @HttpCode(200)
   async getMessageById(@Request() req) {
