@@ -4,7 +4,8 @@ import { User } from 'src/user/entity/user.entity';
 import { UserRepository } from 'src/user/user.repository';
 import { CustomUnauthorizedException } from './exception/CustomUnauthorizedException.exception';
 import * as crypto from 'crypto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import session from 'express-session';
 
 @Injectable()
 export class AuthService {
@@ -23,65 +24,29 @@ export class AuthService {
     return user;
   }
 
-  async validateUser(
-    inputUserName: string,
-    inputPassword: string,
-    res: Response,
-  ): Promise<User | Response> {
-    var result = {
-      code: 1,
-    };
-
-    if (!inputUserName) {
-      return res
-        .status(200)
-        .json({ message: '아이디가 제대로 입력되지 않았습니다.', result });
-    }
-
-    if (!inputPassword) {
-      return res
-        .status(200)
-        .json({ message: '비밀번호가 제대로 입력되지 않았습니다.', result });
-    }
-
-    const username = inputUserName;
-    const password = inputPassword;
-
+  async validateUser(username: string, password: string): Promise<User | null> {
+    console.log('validateUser start');
     const user = await this.userRepository.findOneBy({ username });
-
-    const passwordEncodeData = await this.hashService.hashData(password);
-
-    if (user) {
-      if (passwordEncodeData == user.password) {
-        // 비밀번호가 일치하면 암호화된 세션 데이터 저장
-        const sessionData = this.encryptData({
-          id: user.id,
-          secret: process.env.SESSION_SECRET,
-        });
-        result.code = 0;
-        // 비밀번호가 일치하면 사용자 반환
-        return res
-          .status(200)
-          .json({ message: 'Logged in successfully', result });
-      } else {
-        return res
-          .status(200)
-          .json({ message: '해당 아이디의 비밀번호 틀립니다.', result });
-      }
-    } else {
-      return res
-        .status(200)
-        .json({ message: '해당 아이디가 존재하지 않습니다.', result });
+    if (user == null) {
+      console.log('username not found!');
+      return null;
     }
-  }
+    const inputPasswordHashed = await this.hashService.hashData(password);
 
-  setLoginSession(req: any) {
+    if (user.password === inputPasswordHashed) {
+      // 비밀번호 검증은 해시화된 비밀번호로 비교해야 합니다.
+      console.log('validateUser success end');
+      return user;
+    }
+    console.log('validateUser failed end');
+    return null;
+  }
+  //응답에 secret와 username을 세팅
+  setLoginSession(req: any, res: any, sessionData: any) {
     const encryptSecret = this.encryptData({
-      secret: process.env.SESSION_SECRET,
+      sessionData,
     });
-    req.session.secret = encryptSecret;
-    req.session.user = req.body.username; // 암호화된 세션 데이터 저장
-    console.log(req.session.user);
+    res.session.sessionData = sessionData;
   }
 
   validateLoginSession(req: any, res: any) {}

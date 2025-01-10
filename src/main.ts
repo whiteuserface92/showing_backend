@@ -20,11 +20,11 @@ async function bootstrap() {
   // app.useGlobalGuards(new (AuthGuard('local'))(new Reflector()));
 
   // 한국시간을 기준으로 세션 만료 시간 설정
-  const koreaTimeOffset = 9 * 60 * 60 * 1000; // UTC+9, 한국시간에 맞게 밀리초로 변환 (9시간)
+  const koreaTimeOffset = 60 * 60 * 60 * 1000; // UTC+9, 한국시간에 맞게 밀리초로 변환 (9시간)
   const currentTimeInKST = new Date().getTime() + koreaTimeOffset; // 현재 한국시간
 
   // 세션 만료 시간을 1시간 후로 설정
-  const sessionMaxAge = 60 * 60 * 1000; // 1시간 후 (밀리초 단위)
+  const sessionMaxAge = 6 * 60 * 1000; // 1시간 후 (밀리초 단위) -- 1분 변경
 
   app.use(
     session({
@@ -34,6 +34,7 @@ async function bootstrap() {
       cookie: {
         maxAge: sessionMaxAge, // 1시간 후에 세션 만료
         expires: new Date(currentTimeInKST + sessionMaxAge), // 만료 시간 설정 (한국시간 기준)
+        secure: false,
       },
     }),
   );

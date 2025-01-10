@@ -1,13 +1,14 @@
 import {
   Controller,
-  Request,
   Post,
   UseGuards,
   Res,
   HttpCode,
+  Get,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from 'src/decorator/public.decorator';
 
@@ -16,58 +17,59 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Public()
   @Post('login')
-  async login(@Request() req, @Res() res: Response) {
+  async login(@Req() req: Request, @Res() res: Response) {
     console.log('login start');
     console.log(req.body);
 
-    this.authService.validateUser(req.body.username, req.body.password, res);
+    const user = await this.authService.validateUser(
+      req.body.username,
+      req.body.password,
+    );
+
+    if (user) {
+      delete user.password;
+      const userStringData = JSON.stringify(user);
+      const completeDecryptUserData =
+        await this.authService.encryptData(userStringData);
+      console.log(completeDecryptUserData);
+
+      req.session.cookie.maxAge = 10 * 60 * 1000;
+
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session:', err);
+          console.error('Failed to refresh session.');
+        }
+        console.log('Session expiration time has been refreshed');
+      });
+
+      req.session.user = { completeDecryptUserData: completeDecryptUserData };
+
+      return res.status(200).json({
+        completeDecryptUserData,
+      });
+    } else {
+      return res.status(403).json({
+        completeDecryptUserData: null,
+      });
+    }
   }
 
   @Post('logout')
   @HttpCode(200)
-  async logout(@Request() req, @Res() res: Response) {
-    req.logout((err) => {
-      if (err) return res.status(500).send('Error logging out');
-      res.send('Logged out successfully');
-    });
+  async logout(@Req() req: Request, @Res() res: Response) {
+    // req.logout((err) => {
+    //   if (err) return res.status(500).send('Error logging out');
+    //   res.send('Logged out successfully');
+    // });
   }
 
   @Post('check-session')
-  async checkSession(@Request() req) {
+  async checkSession(@Req() req: Request) {
     const nowSession = req.session;
 
     console.log('nowSession :' + nowSession);
 
     return nowSession;
   }
-
-  @Post('SessionTestEn')
-  async enTest(@Request() req) {
-    const data = this.authService.encryptData(req.body);
-    return data;
-  }
-
-  @Post('SessionTestDe')
-  async deTest(@Request() req) {
-    const data = this.authService.decryptData(req.body.data);
-    return data;
-  }
-
-  @Post('getSession')
-  async getSession(@Request() req) {
-    this.authService.setLoginSession(req);
-    const user = req.session.user;
-    const secret = req.session.secret;
-    const result = {
-      user: user,
-      secret: secret,
-    };
-    return result;
-  }
 }
-
-// if (validatedUser) {
-//   return res.status(200).json({ message: 'Login successful', user });
-// } else {
-//   return res.status(400).json({ message: 'Invalid credentials' });
-// }

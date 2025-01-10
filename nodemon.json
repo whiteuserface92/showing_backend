@@ -1,6 +1,6 @@
 {
+  "exec": "ts-node --cache=false -r tsconfig-paths/register src/main.ts",
   "watch": ["src"],
-  "ext": "ts js json",
-  "ignore": ["dist", "node_modules", "*.log", "tmp"],
-  "exec": "ts-node -r tsconfig-paths/register src/main.ts"
+  "ext": "ts",
+  "ignore": ["src/**/*.spec.ts"]
 }

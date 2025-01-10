@@ -17,13 +17,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     username: string,
     password: string,
     res: Response,
-  ): Promise<User> {
+  ): Promise<User | Response> {
     console.log('local.strategy start');
 
-    const user = this.authService.getUserByUserName(username);
+    const user = await this.authService.validateUser(username, password);
 
     if (!user) {
-      throw new CustomUnauthorizedException('해당 유저를 찾을 수 없습니다.');
+      res.status(403).json({ message: 'strategy user not found!' });
     }
 
     console.log('localStorage.strategy end');
