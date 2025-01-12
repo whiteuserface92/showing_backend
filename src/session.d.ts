@@ -4,6 +4,7 @@ declare module 'express-session' {
   interface Session {
     user: {
       completeDecryptUserData: string;
+      username: string;
     };
   }
 }

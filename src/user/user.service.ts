@@ -1,18 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectConnection, InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { HashService } from 'src/hash/hash.service';
 import { UserRepository } from './user.repository';
+import { AuthService } from 'src/auth/auth.service';
+import { Connection } from 'mariadb';
 
 @Injectable()
 export class UserService {
   constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
     private readonly hashService: HashService,
+    private readonly authService: AuthService,
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
-  ) {}
+  ) { }
 
   async getUsers(): Promise<User[]> {
     return this.userRepository.find();
@@ -59,4 +63,14 @@ export class UserService {
       }
     }
   }
+
+  async getUserOptionByUsername(username: string): Promise<Object | null> {
+    const userOption = await this.dataSource.query(
+      'SELECT * FROM user_option WHERE user_id = (SELECT id FROM user WHERE username = ?);',
+      [username]
+    );
+    console.log(userOption);
+    return userOption
+  }
+
 }

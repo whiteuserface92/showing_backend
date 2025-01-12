@@ -11,10 +11,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from 'src/decorator/public.decorator';
+import session from 'express-session';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
   @Public()
   @Post('login')
   async login(@Req() req: Request, @Res() res: Response) {
@@ -43,7 +44,7 @@ export class AuthController {
         console.log('Session expiration time has been refreshed');
       });
 
-      req.session.user = { completeDecryptUserData: completeDecryptUserData };
+      req.session.user = { completeDecryptUserData: completeDecryptUserData, username: user.username };
 
       return res.status(200).json({
         completeDecryptUserData,
@@ -72,4 +73,20 @@ export class AuthController {
 
     return nowSession;
   }
+
+  @Post('check-session-data')
+  async checkSessionData(@Req() req: Request) {
+    const nowSession = req.session.user;
+
+    console.log('nowSession :' + nowSession);
+
+    return nowSession;
+  }
+
+  @Post('set-session')
+  async setSession(@Req() req: Request, @Res() res: Response) {
+    req.session.user = { completeDecryptUserData: sessionStorage.user.completeDecryptUserData, username: sessionStorage.user.name };
+    return req.session.user;
+  }
+
 }

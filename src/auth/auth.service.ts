@@ -2,9 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { HashService } from 'src/hash/hash.service';
 import { User } from 'src/user/entity/user.entity';
 import { UserRepository } from 'src/user/user.repository';
-import { CustomUnauthorizedException } from './exception/CustomUnauthorizedException.exception';
 import * as crypto from 'crypto';
-import { Request, Response } from 'express';
 import session from 'express-session';
 
 @Injectable()
@@ -13,10 +11,10 @@ export class AuthService {
     private readonly hashService: HashService,
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
-  ) {}
+  ) { }
 
-  private readonly secretKey = crypto.randomBytes(32); // 32바이트 키
-  private readonly iv = crypto.randomBytes(16); // 16바이트 IV
+  private readonly secretKey = crypto.randomBytes(32);
+  private readonly iv = crypto.randomBytes(16);
 
   async getUserByUserName(inputUserName: string) {
     const username = inputUserName;
@@ -35,21 +33,23 @@ export class AuthService {
 
     if (user.password === inputPasswordHashed) {
       // 비밀번호 검증은 해시화된 비밀번호로 비교해야 합니다.
-      console.log('validateUser success end');
+
+      sessionStorage.user = user;
+
       return user;
     }
     console.log('validateUser failed end');
     return null;
   }
   //응답에 secret와 username을 세팅
-  setLoginSession(req: any, res: any, sessionData: any) {
+  setLoginSession(sessionData: any) {
     const encryptSecret = this.encryptData({
       sessionData,
     });
-    res.session.sessionData = sessionData;
+    return encryptSecret;
   }
 
-  validateLoginSession(req: any, res: any) {}
+  validateLoginSession(req: any, res: any) { }
 
   // 세션 데이터 암호화
   encryptData(data: any): string {
@@ -66,11 +66,24 @@ export class AuthService {
 
   // 세션 데이터 복호화
   decryptData(encryptedData: string): any {
+    if (typeof encryptedData !== 'string') {
+      throw new Error('Invalid encrypted data format');
+    }
+
     const [iv, encrypted] = encryptedData.split(':');
+    if (!iv || !encrypted) {
+      throw new Error('Invalid encrypted data format');
+    }
+
+    const ivBuffer = Buffer.from(iv, 'hex');
+    if (ivBuffer.length !== 16) {
+      throw new Error('Invalid initialization vector length');
+    }
+
     const decipher = crypto.createDecipheriv(
       'aes-256-cbc',
       this.secretKey,
-      Buffer.from(iv, 'hex'),
+      ivBuffer,
     );
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');

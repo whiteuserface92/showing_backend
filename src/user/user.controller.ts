@@ -15,16 +15,18 @@ import { Public } from 'src/decorator/public.decorator';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
   @Post('getUsers')
-  @UseGuards(AuthGuard('local'))
+  // @UseGuards(AuthGuard('local'))
+  @Public()
   @HttpCode(200)
   async getUsers() {
     return this.userService.getUsers();
   }
 
-  @Post('create')
-  @UseGuards(AuthGuard('local'))
+  @Post('createUser')
+  // @UseGuards(AuthGuard('local'))
+  @Public()
   async createUser(@Body() user, @Res() res: Response) {
     const result = await this.userService.createUser(user);
     if (result) {
@@ -33,6 +35,23 @@ export class UserController {
       return res
         .status(400)
         .json({ message: 'Created failed Because this username Exist.' });
+    }
+  }
+
+  @Post('getUserOption')
+  // @UseGuards(AuthGuard('local'))
+  @Public()
+  async getUserByUsername(@Body() user, @Res() res: Response) {
+
+    console.log(JSON.stringify(user.user.username));
+
+    const result = await this.userService.getUserOptionByUsername(JSON.stringify(user.user.username));
+    if (result) {
+      return res.status(200).json({ message: 'UserOption get successful', result });
+    } else {
+      return res
+        .status(400)
+        .json({ message: 'UserOption get failed Because this username Exist.' });
     }
   }
 
@@ -60,6 +79,7 @@ export class UserController {
     req.session.user = {
       completeDecryptUserData:
         '0a0e0264d1fa60724ec04b2a88e9233b:ce0e059e7aadb043e806a0682c7870a7e0db5a6b4863031c18a615fcf74d87ecdeca766b143462d8e1dc2bb5c2ce9fe1e1d70c2e580ea18def5509532d2cf5f8',
+      username: req.body.username,
     };
     res.send('Session has been set');
   }
